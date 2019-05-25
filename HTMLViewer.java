@@ -1,18 +1,13 @@
 class HTMLViewer {
 
   public static void main(String[] args) {
-    HTMLElement elem = HTMLElement.createFromString("<INPUT TYPE='submit' PLACEHOLDER='Some Stuff'>");
-    System.out.println(elem.toHTML());
-    System.out.println((new HTMLElement(elem)).toHTML());
-    System.out.println(HTMLElement.createFromString("<a href=\"place.html\" target=_blank>").toHTML());
-    System.out.println(HTMLElement.createFromString("<br />").toHTML());
-    System.out.println(HTMLElement.createFromString("<br/>").toHTML());
-    System.out.println(HTMLElement.createFromString("<br>").toHTML());
-    System.out.println(HTMLElement.createFromString("<img src='place.jpg' />").toHTML());
-    System.out.println(HTMLElement.createFromString("<img src='no.jpg' style=\"myspace\"/>").toHTML());
-
     HTMLParser parser = new HTMLParser();
-    parser.parse("some stuff <!-- comment --> more stuff <!-- other comment -->");
-    System.out.println(parser.rootElement.contents.elementAt(0).toHTML());
+
+    String docu = "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8' /><title>A title</title><script>var s = ' \' </head> \' ';alert(s);</script><script src='test.js' /></head><body><!-- some comment with <b> html inside --><h1>A header</h1><b><i>something</b> something </i> else<div><div></div><div></div></div><div></div><div><p>Some text in a <em>paragraph</em><p>Matthew's PB and J sandwich<br>hi there!<br><p><a href='someplace.htm'>a link</a> in a p tag</div><ul><li>thing one<li>thing two<li>thing three</ul><script src='something.js'></script></body></html>";
+
+    parser.parse(docu);
+
+    parser.printDoc();
+
   }
 }

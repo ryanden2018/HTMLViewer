@@ -21,9 +21,9 @@ class HTMLParser {
   static final String closingRootTagRegex = "<\\/html\\s*>\\z";
   static final String selfClosingScriptRegex = "<script[^<>]*\\/\\s*>\\z";
   static final String scriptRegex = "<script[^<>]*>\\z";
-  static final String scriptClosingRegex = "<\\/script\\s>\\z";
+  static final String scriptClosingRegex = "<\\/script\\s*>\\z";
   static final String tagRegex = "<[a-zA-Z][^<>]*>\\z";
-  static final String closingTagRegex = "<\\/[a-z][A-Z][^<>]*>\\z";
+  static final String closingTagRegex = "<\\/[a-zA-Z][^<>]*>\\z";
 
   // parse a fragment by adding filler code
   public void parseFragment(String htmlFragment) {
@@ -32,8 +32,8 @@ class HTMLParser {
 
   // determine whether the given stack contains a tagName element
   static boolean tagInStack(Vector<HTMLElement> stack, String tagName) {
-    for(Iterator<HTMLElement> v = stack.iterator(); v.hasNext(); ) {
-      if(v.next().tagName == tagName) {
+    for(int i = 0; i < stack.size(); i++) {
+      if(stack.get(i).tagName.equals(tagName)) {
         return true;
       }
     }
@@ -45,15 +45,15 @@ class HTMLParser {
   }
 
   static void compilePatterns() {
-    commentPattern = Pattern.compile(commentRegex);
-    doctypePattern = Pattern.compile(doctypeRegex);
-    rootTagPattern = Pattern.compile(rootTagRegex);
-    closingRootTagPattern = Pattern.compile(closingRootTagRegex);
-    selfClosingScriptPattern = Pattern.compile(selfClosingScriptRegex);
-    scriptPattern = Pattern.compile(scriptRegex);
-    scriptClosingPattern = Pattern.compile(scriptClosingRegex);
-    tagPattern = Pattern.compile(tagRegex);
-    closingTagPattern = Pattern.compile(closingTagRegex);
+    commentPattern = Pattern.compile(commentRegex, Pattern.CASE_INSENSITIVE);
+    doctypePattern = Pattern.compile(doctypeRegex, Pattern.CASE_INSENSITIVE);
+    rootTagPattern = Pattern.compile(rootTagRegex, Pattern.CASE_INSENSITIVE);
+    closingRootTagPattern = Pattern.compile(closingRootTagRegex, Pattern.CASE_INSENSITIVE);
+    selfClosingScriptPattern = Pattern.compile(selfClosingScriptRegex, Pattern.CASE_INSENSITIVE);
+    scriptPattern = Pattern.compile(scriptRegex, Pattern.CASE_INSENSITIVE);
+    scriptClosingPattern = Pattern.compile(scriptClosingRegex, Pattern.CASE_INSENSITIVE);
+    tagPattern = Pattern.compile(tagRegex, Pattern.CASE_INSENSITIVE);
+    closingTagPattern = Pattern.compile(closingTagRegex, Pattern.CASE_INSENSITIVE);
   }
 
   // parse given HTML document into the rootElement
@@ -157,6 +157,9 @@ class HTMLParser {
 
     Matcher scriptClosingMatcher = scriptClosingPattern.matcher(buffer);
     if(scriptClosingMatcher.find()) {
+      String text = scriptClosingPattern.split(" "+buffer)[0].trim();
+      stack.lastElement().contents.add(new TextLeaf(text));
+      stack.remove(stack.size()-1);
       return "";
     }
     
@@ -182,9 +185,9 @@ class HTMLParser {
 
     Matcher closingTagMatcher = closingTagPattern.matcher(buffer);
     if(closingTagMatcher.find()) {
-      String text = tagPattern.split(" "+buffer)[0].trim();
+      String text = closingTagPattern.split(" "+buffer)[0].trim();
       stack.lastElement().contents.add(new TextLeaf(text));
-      handleClosingTag(stack,tagMatcher.group());
+      handleClosingTag(stack,closingTagMatcher.group());
       return "";
     }
 
@@ -195,6 +198,11 @@ class HTMLParser {
   void handleOpeningTag(Vector<HTMLElement> stack, String openingTag) {
     HTMLElement elem = HTMLElement.createFromString(openingTag);
     Vector<HTMLElement> tmp = new Vector<HTMLElement>();
+
+    if(Arrays.asList(HTMLElement.selfClosingTags()).contains(elem.tagName)) {
+      stack.lastElement().contents.add(elem);
+      return;
+    }
 
     if( !Arrays.asList(HTMLElement.nestableTags()).contains( elem.tagName ) ) {
       while(tagInStack(stack,elem.tagName)) {
@@ -220,8 +228,12 @@ class HTMLParser {
     String tagName = closingTag.replace('<',' ').replace('>',' ').replace('/',' ').trim();
     Vector<HTMLElement> tmp = new Vector<HTMLElement>();
 
+    if(!tagInStack(stack,tagName)) {
+      return;
+    }
+
     while(true) {
-      if(stack.lastElement().tagName == tagName) {
+      if(stack.lastElement().tagName.equals(tagName)) {
         break;
       }
       if(Arrays.asList(HTMLElement.reopenableTags()).contains(
@@ -236,6 +248,37 @@ class HTMLParser {
 
     while(tmp.size() > 0) {
       stack.add(tmp.remove(tmp.size()-1));
+    }
+  }
+
+
+
+  //// DEBUGGING METHOD
+  public void printDoc() {
+    printElemAndContents(rootElement,0);
+  }
+
+
+  //// DEBUGGING METHOD
+  void printElemAndContents(HTMLElement elem, int depth) {
+    String tab = "    ";
+    for(int i = 0; i < depth; i++) {
+      System.out.print(tab);
+    }
+    System.out.println(elem.toHTML());
+
+    for(int i = 0; i < elem.contents.size(); i++) {
+      HTMLObject obj = elem.contents.get(i);
+      if(obj.getClass().getName().equals("TextLeaf")) {
+        if(obj.toHTML().trim() != "") {
+          for(int j = 0; j < depth+1; j++) {
+            System.out.print(tab);
+          }
+          System.out.println(obj.toHTML());
+        }
+      } else {
+        printElemAndContents((HTMLElement) obj,depth+1);
+      }
     }
   }
 }

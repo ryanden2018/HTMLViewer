@@ -120,6 +120,8 @@ class HTMLElement extends HTMLObject {
     }
     if(Arrays.asList(HTMLElement.selfClosingTags()).contains(this.tagName)) {
       html += " /";
+    } else if( (this.tagName.equals("script")) && (this.contents.size()==0)) {
+      html += " /";
     }
     html += ">";
     return html;
