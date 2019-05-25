@@ -5,15 +5,17 @@ import java.awt.*;
 class HTMLViewer {
   JFrame jfrm;
   JTree jtree;
+  JScrollPane jscroll;
   DefaultMutableTreeNode top;
 
   HTMLViewer() {
     jfrm = new JFrame("HTMLViewer");
     top = new DefaultMutableTreeNode("html");
     jtree = new JTree(top);
+    jscroll = new JScrollPane(jtree);
 
     jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    jfrm.add(jtree,BorderLayout.CENTER);
+    jfrm.add(jscroll,BorderLayout.CENTER);
     jfrm.setSize(new Dimension(500,600));
     jfrm.setVisible(true);
   }
@@ -29,6 +31,7 @@ class HTMLViewer {
 
   }
 
+  // helper to recursively add nodes to the JTree
   void addNodesHelper(HTMLElement elem, DefaultMutableTreeNode node) {
     for(int i = 0; i < elem.contents.size(); i++) {
       HTMLObject obj = elem.contents.get(i);
@@ -47,6 +50,7 @@ class HTMLViewer {
     }
   }
 
+  // add nodes to the JTree
   void addNodes(HTMLParser parser) {
     addNodesHelper(parser.rootElement,top);
   }
