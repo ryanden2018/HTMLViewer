@@ -43,8 +43,21 @@ class HTMLElement extends HTMLObject {
     }
   }
 
+  // set attributes of this object from the given string
+  public void setAttributes(HTMLElement elem) {
+    for(Enumeration<String> e = this.attributes.keys(); e.hasMoreElements();) {
+      this.attributes.remove(e.nextElement());
+    }
+
+    for(Enumeration<String> e = elem.attributes.keys(); e.hasMoreElements();) {
+      String attr = e.nextElement();
+      String val = elem.attributes.get(attr);
+      this.attributes.put(attr,val);
+    }
+  }
+
   // create an HTMLElement from an opening tag string
-  static HTMLElement createFromString(String str) {
+  public static HTMLElement createFromString(String str) {
     if(!str.matches("\\A<[a-zA-Z][^<>]*>\\z")) {
       throw new IllegalArgumentException("Cannot parse HTML string: " + str);
     }

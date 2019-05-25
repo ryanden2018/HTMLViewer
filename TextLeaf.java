@@ -4,5 +4,9 @@ class TextLeaf extends HTMLObject {
   TextLeaf(String text) {
     this.text = text;
   }
+
+  public String toHTML() {
+    return this.text;
+  }
 }
 
