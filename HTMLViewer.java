@@ -1,4 +1,22 @@
+import javax.swing.*;
+import javax.swing.tree.*;
+import java.awt.*;
+
 class HTMLViewer {
+  JFrame jfrm;
+  JTree jtree;
+  DefaultMutableTreeNode top;
+
+  HTMLViewer() {
+    jfrm = new JFrame("HTMLViewer");
+    top = new DefaultMutableTreeNode("html");
+    jtree = new JTree(top);
+
+    jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jfrm.add(jtree,BorderLayout.CENTER);
+    jfrm.setSize(new Dimension(500,600));
+    jfrm.setVisible(true);
+  }
 
   public static void main(String[] args) {
     HTMLParser parser = new HTMLParser();
@@ -7,7 +25,29 @@ class HTMLViewer {
 
     parser.parse(docu);
 
-    parser.printDoc();
+    (new HTMLViewer()).addNodes(parser);
 
+  }
+
+  void addNodesHelper(HTMLElement elem, DefaultMutableTreeNode node) {
+    for(int i = 0; i < elem.contents.size(); i++) {
+      HTMLObject obj = elem.contents.get(i);
+      if(obj.getClass().getName().equals("HTMLElement")) {
+        DefaultMutableTreeNode newNode =
+          new DefaultMutableTreeNode(obj.toHTML());
+        node.add(newNode);
+        addNodesHelper((HTMLElement) obj, newNode);
+      } else {
+        if(!obj.toHTML().trim().equals("")) {
+          node.add(
+            new DefaultMutableTreeNode(
+              obj.toHTML()));
+        }
+      }
+    }
+  }
+
+  void addNodes(HTMLParser parser) {
+    addNodesHelper(parser.rootElement,top);
   }
 }
