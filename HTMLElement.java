@@ -7,6 +7,23 @@ class HTMLElement extends HTMLObject {
   Hashtable<String,String> attributes;
   Vector<HTMLObject> contents;
 
+  static String[] selfClosingTags() {
+    String result[] = {"area","base","br","col","embed","hr","img","input","link",
+      "meta","param","source","track","wbr","command","keygen","menuitem"};
+    return result;
+  }
+
+  static String[] reopenableTags() {
+    String result[] = {"b","i","a","font","em","h1","h2","h3","h4","h5","h6",
+      "pre","strong","u"};
+    return result;
+  }
+
+  static String[] nestableTags() {
+    String result[] = {"div"};
+    return result;
+  }
+
   HTMLElement(String tagName) {
     this.tagName = tagName;
     this.attributes = new Hashtable<String,String>();
@@ -24,7 +41,7 @@ class HTMLElement extends HTMLObject {
     Pattern tagPattern = Pattern.compile("\\A[a-zA-Z][a-zA-Z0-9]*\\/?\\b");
     Matcher tagMatch = tagPattern.matcher(str1);
     tagMatch.find();
-    HTMLElement elem = new HTMLElement(tagMatch.group());
+    HTMLElement elem = new HTMLElement(tagMatch.group().toLowerCase());
 
     String str2 = tagPattern.split(str1+" ")[1].trim();
 
@@ -64,5 +81,21 @@ class HTMLElement extends HTMLObject {
 
 
     return elem;
+  }
+
+  // return this element in HTML form
+  public String toHTML() {
+    String html = "<";
+    html += this.tagName;
+    for(Enumeration<String> e = this.attributes.keys(); e.hasMoreElements();) {
+      String attr = e.nextElement();
+      String val = this.attributes.get(attr).replaceAll("\"","&quot;");
+      html += " " + attr + "=" + "\"" + val + "\"";
+    }
+    if(Arrays.asList(HTMLElement.selfClosingTags()).contains(this.tagName)) {
+      html += " /";
+    }
+    html += ">";
+    return html;
   }
 }
