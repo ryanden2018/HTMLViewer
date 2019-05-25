@@ -25,6 +25,21 @@ class HTMLParser {
   static final String tagRegex = "<[a-zA-Z][^<>]*>\\z";
   static final String closingTagRegex = "<\\/[a-z][A-Z][^<>]*>\\z";
 
+  // parse a fragment by adding filler code
+  public void parseFragment(String htmlFragment) {
+    // TODO: implement this
+  }
+
+  // determine whether the given stack contains a tagName element
+  static boolean tagInStack(Vector<HTMLElement> stack, String tagName) {
+    for(Iterator<HTMLElement> v = stack.iterator(); v.hasNext(); ) {
+      if(v.next().tagName == tagName) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   HTMLParser() {
     rootElement = new HTMLElement("html");
   }
@@ -40,22 +55,6 @@ class HTMLParser {
     tagPattern = Pattern.compile(tagRegex);
     closingTagPattern = Pattern.compile(closingTagRegex);
   }
-
-  // determine whether the given stack contains a tagName element
-  static boolean tagInStack(Vector<HTMLElement> stack, String tagName) {
-    for(Iterator<HTMLElement> v = stack.iterator(); v.hasNext(); ) {
-      if(v.next().tagName == tagName) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // parse a fragment by adding filler code
-  void parseFragment(String htmlFragment) {
-    // TODO: implement this
-  }
-
 
   // parse given HTML document into the rootElement
   public void parse(String htmlDoc) {
@@ -182,7 +181,7 @@ class HTMLParser {
     // 11. check for generic closing tag
 
     Matcher closingTagMatcher = closingTagPattern.matcher(buffer);
-    if(closingTagMather.find()) {
+    if(closingTagMatcher.find()) {
       String text = tagPattern.split(" "+buffer)[0].trim();
       stack.lastElement().contents.add(new TextLeaf(text));
       handleClosingTag(stack,tagMatcher.group());
@@ -190,5 +189,53 @@ class HTMLParser {
     }
 
     return buffer;
+  }
+
+  // handle opening tag (push to stack)
+  void handleOpeningTag(Vector<HTMLElement> stack, String openingTag) {
+    HTMLElement elem = HTMLElement.createFromString(openingTag);
+    Vector<HTMLElement> tmp = new Vector<HTMLElement>();
+
+    if( !Arrays.asList(HTMLElement.nestableTags()).contains( elem.tagName ) ) {
+      while(tagInStack(stack,elem.tagName)) {
+        if(Arrays.asList(HTMLElement.reopenableTags()).contains(
+              stack.lastElement().tagName)) {
+          tmp.add(new HTMLElement(stack.remove(stack.size()-1)));
+        } else {
+          stack.remove(stack.size()-1);
+        }
+      }
+
+      while(tmp.size() > 0) {
+        stack.add(tmp.remove(tmp.size()-1));
+      }
+    }
+
+    stack.lastElement().contents.add(elem);
+    stack.add(elem);
+  }
+
+  // handle closing tag (pop the stack)
+  void handleClosingTag(Vector<HTMLElement> stack, String closingTag) {
+    String tagName = closingTag.replace('<',' ').replace('>',' ').replace('/',' ').trim();
+    Vector<HTMLElement> tmp = new Vector<HTMLElement>();
+
+    while(true) {
+      if(stack.lastElement().tagName == tagName) {
+        break;
+      }
+      if(Arrays.asList(HTMLElement.reopenableTags()).contains(
+          stack.lastElement().tagName)) {
+        tmp.add(new HTMLElement(stack.remove(stack.size()-1)));
+      } else {
+        stack.remove(stack.size()-1);
+      }
+    }
+
+    stack.remove(stack.size()-1);
+
+    while(tmp.size() > 0) {
+      stack.add(tmp.remove(tmp.size()-1));
+    }
   }
 }
