@@ -24,10 +24,23 @@ class HTMLElement extends HTMLObject {
     return result;
   }
 
+  // create HTMLElement from tag only
   HTMLElement(String tagName) {
     this.tagName = tagName;
     this.attributes = new Hashtable<String,String>();
     this.contents = new Vector<HTMLObject>();
+  }
+
+  // copy an HTMLElement without retaining the contents
+  HTMLElement(HTMLElement oldElem) {
+    this.tagName = oldElem.tagName;
+    this.attributes = new Hashtable<String,String>();
+    this.contents = new Vector<HTMLObject>();
+    for(Enumeration<String> e = oldElem.attributes.keys(); e.hasMoreElements();) {
+      String attr = e.nextElement();
+      String val = oldElem.attributes.get(attr);
+      this.attributes.put(attr,val);
+    }
   }
 
   // create an HTMLElement from an opening tag string
@@ -97,5 +110,10 @@ class HTMLElement extends HTMLObject {
     }
     html += ">";
     return html;
+  }
+
+  // extract the tag name from a string
+  static String tagFromString(String str) {
+    return (new HTMLElement(str.replaceAll("/",""))).tagName;
   }
 }
