@@ -58,6 +58,15 @@ class HTMLViewer implements ActionListener {
     jfrm.setVisible(true);
   }
 
+  public void openFileFromURL() {
+    String url = (String)JOptionPane.showInputDialog(
+      jfrm, "Input URL:", "Input URL",
+      JOptionPane.PLAIN_MESSAGE, null, null,"");
+    if((url != null) && (url.length() > 0)) {
+      // do stuff
+    }
+  }
+
   public void openFileFromChooser() {
     JFileChooser chooser = new JFileChooser();
     FileNameExtensionFilter filter = new FileNameExtensionFilter("HTML Files","htm","html");
@@ -84,6 +93,7 @@ class HTMLViewer implements ActionListener {
         openFileFromChooser();
         break;
       case SEL_OPEN_FROM_URL:
+        openFileFromURL();
         break;
       case SEL_EXIT:
         System.exit(0);
