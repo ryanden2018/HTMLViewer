@@ -19,13 +19,35 @@ class HTMLViewer {
     font = new Font("monospaced",Font.PLAIN,16);
     jtree.setFont(font);
 
+    // remove icons from JTree
+    DefaultTreeCellRenderer cr = new DefaultTreeCellRenderer();
+    cr.setOpenIcon(null);
+    cr.setClosedIcon(null);
+    cr.setLeafIcon(null);
+    jtree.setCellRenderer(cr);
+
+    JMenuBar menuBar = new JMenuBar();
+    JMenu fileMenu = new JMenu("File");
+    menuBar.add(fileMenu);
+
+    JMenuItem openItem = new JMenuItem("Open File...");
+    JMenuItem openItemFromURL = new JMenuItem("Open File from URL...");
+    JMenuItem exitItem = new JMenuItem("Exit");
+    fileMenu.add(openItem);
+    fileMenu.add(openItemFromURL);
+    fileMenu.addSeparator();
+    fileMenu.add(exitItem);
+
     jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     jfrm.add(jscroll,BorderLayout.CENTER);
     jfrm.setSize(new Dimension(500,600));
+    jfrm.setJMenuBar(menuBar);
     jfrm.setVisible(true);
   }
 
   public static void main(String[] args) {
+    System.setProperty("apple.laf.useScreenMenuBar", "true");
+
     HTMLParser parser = new HTMLParser();
 
     String docu = "";
