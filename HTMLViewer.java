@@ -4,6 +4,7 @@ import javax.swing.tree.*;
 import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 class HTMLViewer implements ActionListener {
   JFrame jfrm;
@@ -57,28 +58,42 @@ class HTMLViewer implements ActionListener {
     jfrm.setVisible(true);
   }
 
+  public void openFileFromChooser() {
+    JFileChooser chooser = new JFileChooser();
+    FileNameExtensionFilter filter = new FileNameExtensionFilter("HTML Files","htm","html");
+    chooser.setFileFilter(filter);
+    if(chooser.showOpenDialog(jfrm) == JFileChooser.APPROVE_OPTION) {
+      HTMLParser parser = new HTMLParser();
+      String docu = "";
+      try {
+        docu = new String ( Files.readAllBytes( Paths.get(
+          chooser.getSelectedFile().getPath()
+        )) );
+        parser.parse(docu);
+        addNodes(parser);
+      } catch (java.io.IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
 
   public void actionPerformed(ActionEvent e) {
     switch(e.getActionCommand()) {
+      case SEL_OPEN:
+        openFileFromChooser();
+        break;
+      case SEL_OPEN_FROM_URL:
+        break;
+      case SEL_EXIT:
+        System.exit(0);
     }
   }
 
   public static void main(String[] args) {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
 
-    HTMLParser parser = new HTMLParser();
-
-    String docu = "";
-    try {
-      docu = new String ( Files.readAllBytes( Paths.get("test.html")) );
-    } catch (java.io.IOException e) {
-      e.printStackTrace();
-    }
-    
-    
-    parser.parse(docu);
-
-    (new HTMLViewer()).addNodes(parser);
+    new HTMLViewer();
   }
 
 
@@ -108,8 +123,6 @@ class HTMLViewer implements ActionListener {
     top.removeAllChildren();
     top.setUserObject(transform(parser.rootElement.toHTML()));
     addNodesHelper(parser.rootElement,top);
-    TreePath tp = new TreePath(top);
-    jtree.expandPath(tp);
-    jtree.collapsePath(tp);
+    ((DefaultTreeModel)jtree.getModel()).reload();
   }
 }
