@@ -1,15 +1,19 @@
 import javax.swing.*;
+import java.awt.event.*;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-class HTMLViewer {
+class HTMLViewer implements ActionListener {
   JFrame jfrm;
   JTree jtree;
   JScrollPane jscroll;
   DefaultMutableTreeNode top;
   Font font;
+  static final String SEL_OPEN = "1";
+  static final String SEL_OPEN_FROM_URL = "2";
+  static final String SEL_EXIT = "3";
 
   HTMLViewer() {
     jfrm = new JFrame("HTMLViewer");
@@ -26,6 +30,7 @@ class HTMLViewer {
     cr.setLeafIcon(null);
     jtree.setCellRenderer(cr);
 
+    // construct menus
     JMenuBar menuBar = new JMenuBar();
     JMenu fileMenu = new JMenu("File");
     menuBar.add(fileMenu);
@@ -38,11 +43,24 @@ class HTMLViewer {
     fileMenu.addSeparator();
     fileMenu.add(exitItem);
 
+    openItem.addActionListener(this);
+    openItem.setActionCommand(SEL_OPEN);
+    openItemFromURL.addActionListener(this);
+    openItemFromURL.setActionCommand(SEL_OPEN_FROM_URL);
+    exitItem.addActionListener(this);
+    exitItem.setActionCommand(SEL_EXIT);
+
     jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     jfrm.add(jscroll,BorderLayout.CENTER);
     jfrm.setSize(new Dimension(500,600));
     jfrm.setJMenuBar(menuBar);
     jfrm.setVisible(true);
+  }
+
+
+  public void actionPerformed(ActionEvent e) {
+    switch(e.getActionCommand()) {
+    }
   }
 
   public static void main(String[] args) {
