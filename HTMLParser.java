@@ -89,8 +89,8 @@ class HTMLParser {
     if(commentMatcher.find()) {
       String comment = commentMatcher.group();
       String text = commentPattern.split(" "+buffer)[0].trim();
-      if(text != "") {
-        stack.lastElement().contents.add(new TextLeaf(text));
+      if(!text.trim().equals("")) {
+        stack.lastElement().contents.add(new TextLeaf(text.trim()));
       }
       stack.lastElement().contents.add(new TextLeaf(comment));
       return "";
@@ -125,7 +125,9 @@ class HTMLParser {
     Matcher closingRootTagMatcher = closingRootTagPattern.matcher(buffer);
     if(closingRootTagMatcher.find()) {
       String text = closingRootTagPattern.split(" "+buffer)[0].trim();
-      stack.lastElement().contents.add(new TextLeaf(text));
+      if(!text.trim().equals("")) {
+        stack.lastElement().contents.add(new TextLeaf(text.trim()));
+      }
       stack.removeAllElements();
       return "";
     }
@@ -135,7 +137,9 @@ class HTMLParser {
     Matcher selfClosingScriptMatcher = selfClosingScriptPattern.matcher(buffer);
     if(selfClosingScriptMatcher.find()) {
       String text = selfClosingScriptPattern.split(" "+buffer)[0].trim();
-      stack.lastElement().contents.add(new TextLeaf(text));
+      if(!text.trim().equals("")) {
+        stack.lastElement().contents.add(new TextLeaf(text.trim()));
+      }
       stack.lastElement().contents.add(
           HTMLElement.createFromString(selfClosingScriptMatcher.group()));
       return "";
@@ -146,7 +150,9 @@ class HTMLParser {
     Matcher scriptMatcher = scriptPattern.matcher(buffer);
     if(scriptMatcher.find()) {
       String text = scriptPattern.split(" "+buffer)[0].trim();
-      stack.lastElement().contents.add(new TextLeaf(text));
+      if(!text.trim().equals("")) {
+        stack.lastElement().contents.add(new TextLeaf(text.trim()));
+      }
       HTMLElement newElem = HTMLElement.createFromString(scriptMatcher.group());
       stack.lastElement().contents.add(newElem);
       stack.add(newElem);
@@ -158,7 +164,9 @@ class HTMLParser {
     Matcher scriptClosingMatcher = scriptClosingPattern.matcher(buffer);
     if(scriptClosingMatcher.find()) {
       String text = scriptClosingPattern.split(" "+buffer)[0].trim();
-      stack.lastElement().contents.add(new TextLeaf(text));
+      if(!text.trim().equals("")) {
+        stack.lastElement().contents.add(new TextLeaf(text.trim()));
+      }
       stack.remove(stack.size()-1);
       return "";
     }
@@ -175,7 +183,9 @@ class HTMLParser {
     Matcher tagMatcher = tagPattern.matcher(buffer);
     if(tagMatcher.find()) {
       String text = tagPattern.split(" "+buffer)[0].trim();
-      stack.lastElement().contents.add(new TextLeaf(text));
+      if(!text.trim().equals("")) {
+        stack.lastElement().contents.add(new TextLeaf(text.trim()));
+      }
       handleOpeningTag(stack,tagMatcher.group());
       return "";
     }
@@ -186,7 +196,9 @@ class HTMLParser {
     Matcher closingTagMatcher = closingTagPattern.matcher(buffer);
     if(closingTagMatcher.find()) {
       String text = closingTagPattern.split(" "+buffer)[0].trim();
-      stack.lastElement().contents.add(new TextLeaf(text));
+      if(!text.trim().equals("")) {
+        stack.lastElement().contents.add(new TextLeaf(text.trim()));
+      }
       handleClosingTag(stack,closingTagMatcher.group());
       return "";
     }
@@ -215,6 +227,7 @@ class HTMLParser {
       }
 
       while(tmp.size() > 0) {
+        stack.lastElement().contents.add(tmp.get(tmp.size()-1));
         stack.add(tmp.remove(tmp.size()-1));
       }
     }
@@ -247,38 +260,8 @@ class HTMLParser {
     stack.remove(stack.size()-1);
 
     while(tmp.size() > 0) {
+      stack.lastElement().contents.add(tmp.get(tmp.size()-1));
       stack.add(tmp.remove(tmp.size()-1));
-    }
-  }
-
-
-
-  //// DEBUGGING METHOD
-  public void printDoc() {
-    printElemAndContents(rootElement,0);
-  }
-
-
-  //// DEBUGGING METHOD
-  void printElemAndContents(HTMLElement elem, int depth) {
-    String tab = "    ";
-    for(int i = 0; i < depth; i++) {
-      System.out.print(tab);
-    }
-    System.out.println(elem.toHTML());
-
-    for(int i = 0; i < elem.contents.size(); i++) {
-      HTMLObject obj = elem.contents.get(i);
-      if(obj.getClass().getName().equals("TextLeaf")) {
-        if(obj.toHTML().trim() != "") {
-          for(int j = 0; j < depth+1; j++) {
-            System.out.print(tab);
-          }
-          System.out.println(obj.toHTML());
-        }
-      } else {
-        printElemAndContents((HTMLElement) obj,depth+1);
-      }
     }
   }
 }
