@@ -4,6 +4,8 @@ import javax.swing.tree.*;
 import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.io.*;
+import java.net.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 class HTMLViewer implements ActionListener {
@@ -59,11 +61,25 @@ class HTMLViewer implements ActionListener {
   }
 
   public void openFileFromURL() {
-    String url = (String)JOptionPane.showInputDialog(
+    String furl = (String)JOptionPane.showInputDialog(
       jfrm, "Input URL:", "Input URL",
       JOptionPane.PLAIN_MESSAGE, null, null,"");
-    if((url != null) && (url.length() > 0)) {
-      // do stuff
+    HTMLParser parser = new HTMLParser();
+    if((furl != null) && (furl.length() > 0)) {
+      try {
+        URL loc = new URL(furl);
+        BufferedReader in = new BufferedReader(new InputStreamReader(loc.openStream()));
+        String line = "";
+        String docu = "";
+        while((line = in.readLine()) != null) {
+          docu += line + " ";
+        }
+        in.close();
+        parser.parse(docu);
+        addNodes(parser);
+      } catch(IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 
