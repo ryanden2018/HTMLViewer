@@ -27,7 +27,9 @@ class HTMLParser {
 
   // parse a fragment by adding filler code
   public void parseFragment(String htmlFragment) {
-    // TODO: implement this
+    String begin = "<!DOCTYPE html><head><title>Your Title</title></head><body>";
+    String end = "</body></html>";
+    parse(begin+htmlFragment+end);
   }
 
   // determine whether the given stack contains a tagName element

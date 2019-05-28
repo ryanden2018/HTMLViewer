@@ -78,7 +78,7 @@ class HTMLViewer implements ActionListener {
         parser.parse(docu);
         addNodes(parser);
       } catch(IOException e) {
-        e.printStackTrace();
+        JOptionPane.showMessageDialog(jfrm,"Error: Could not read data from URL");
       }
     }
   }
@@ -97,7 +97,7 @@ class HTMLViewer implements ActionListener {
         parser.parse(docu);
         addNodes(parser);
       } catch (java.io.IOException e) {
-        e.printStackTrace();
+        JOptionPane.showMessageDialog(jfrm,"Error: Could not read data from file");
       }
     }
   }
