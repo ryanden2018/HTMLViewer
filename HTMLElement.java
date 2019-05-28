@@ -66,7 +66,9 @@ class HTMLElement extends HTMLObject {
 
     Pattern tagPattern = Pattern.compile("\\A[a-zA-Z][a-zA-Z0-9]*\\/?\\b");
     Matcher tagMatch = tagPattern.matcher(str1);
-    tagMatch.find();
+    if( !tagMatch.find() ) {
+      throw new IllegalArgumentException("Cannot parse HTML string: " + str);
+    }
     HTMLElement elem = new HTMLElement(tagMatch.group().toLowerCase());
 
     String str2 = tagPattern.split(str1+" ")[1].trim();
