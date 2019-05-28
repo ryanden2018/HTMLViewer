@@ -70,7 +70,9 @@ class HTMLParser {
 
     for(char ch : htmlDocChars) {
       buffer += ch;
-      buffer = parseBuffer(buffer,stack);
+      if(ch == '>') {
+        buffer = parseBuffer(buffer,stack);
+      }
     }
   }
 
