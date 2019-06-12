@@ -74,13 +74,15 @@ class HTMLElement extends HTMLObject {
     String str2 = tagPattern.split(str1+" ")[1].trim();
 
     while(true) {
-      Pattern attrPattern = Pattern.compile("\\A[a-zA-Z][a-zA-Z0-9_:\\.-]*=");
+      Pattern attrPattern = Pattern.compile("\\A[a-zA-Z][a-zA-Z0-9_:\\.-]*\\s*=\\s*");
       Matcher attrMatch = attrPattern.matcher(str2);
       if( !attrMatch.find() ) {
         break;
       }
       String attr = attrMatch.group();
-      attr = attr.substring(0,attr.length()-1);
+      attr = attr.trim();
+      attr = attr.substring(0,attr.length()-1).trim();
+      attr = attr.toLowerCase();
 
       str2 = attrPattern.split(str2+" ")[1].trim();
 
